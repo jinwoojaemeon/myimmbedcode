@@ -1,0 +1,266 @@
+/*이 코드들은 os6으로 작성했을 때 작동을 하는 코드를 포함하고 있음.*/
+
+#include "mbed.h"
+#include "rtos.h"
+
+BufferedSerial pc(USBTX, USBRX); // tx, rx
+
+FileHandle *mbed::mbed_override_console(int fd)
+{
+    return &pc;
+}
+
+DigitalOut Rled(PC_0);
+DigitalOut Bled(PC_1);
+DigitalOut Yled(PC_2);
+DigitalOut Gled(PC_3);
+
+Thread thread1;
+Thread thread2;
+Thread thread3;
+Thread thread4;
+
+//Thread *(test);
+
+void Rled_thread()
+{
+    while (true) {
+        Rled = !Rled;
+        ThisThread::sleep_for(250);
+    }
+}
+
+void Bled_thread()
+{
+    while (true) {
+        Bled = !Bled;
+        ThisThread::sleep_for(500);
+    }
+}
+
+void Yled_thread()
+{
+    while (true) {
+        Yled = !Yled;
+        ThisThread::sleep_for(750);
+    }
+}
+
+void Gled_thread()
+{
+    while (true) {
+        Gled = !Gled;
+        ThisThread::sleep_for(1000);
+    }
+}
+
+
+int main()
+{
+    //thread1.set_priority(osPriorityNormal2);
+    thread1.start(Rled_thread);
+    //thread2.set_priority(osPriorityNormal2);
+    thread2.start(Bled_thread);
+    thread3.start(Yled_thread);
+    thread4.start(Gled_thread);
+    
+    thread1.set_priority(osPriorityNormal2);
+    thread2.set_priority(osPriorityNormal3);
+    printf("Open Serial!!\n\n\r");
+
+    while (true) {
+        
+        printf("Serial Test!!\n\n\r");
+ 
+        printf("Thread 1 Priority = %i\n\n\r",thread1.get_priority());
+        printf("Thread 2 Priority = %i\n\n\r",thread2.get_priority());
+        printf("Thread 3 Priority = %i\n\n\r",thread3.get_priority());
+        printf("Thread 4 Priority = %i\n\n\r",thread4.get_priority());
+        //printf("%i\n\r",test->get_priority());
+        ThisThread::sleep_for(1000);
+    }
+}
+
+
+
+실습2 
+#include "mbed.h"
+#include "rtos.h"
+
+
+DigitalOut Rled(PC_0);
+DigitalOut Bled(PC_1);
+
+DigitalOut Yled(PC_2);
+DigitalOut Gled(PC_3);
+
+
+Thread thread1;
+Thread thread2;
+Thread thread3;
+Thread thread4;
+
+
+
+void Rled_thread()
+{
+    while (true) {
+        Rled = !Rled;
+        ThisThread::sleep_for(250);
+    }
+}
+
+void Bled_thread()
+{
+    while (true) {
+        Bled = !Bled;
+        ThisThread::sleep_for(500);
+    }
+}
+
+void Yled_thread()
+{
+    while (true) {
+        Yled = !Yled;
+        ThisThread::sleep_for(750);
+    }
+}
+
+void Gled_thread()
+{
+    while (true) {
+        Gled = !Gled;
+        ThisThread::sleep_for(1000);
+    }
+}
+
+
+int main()
+{
+    thread1.start(Rled_thread);
+    thread2.start(Bled_thread);
+    thread3.start(Yled_thread);
+    thread4.start(Gled_thread);
+    thread1.set_priority(osPriorityNormal);
+    thread2.set_priority(osPriorityNormal1);
+    thread3.set_priority(osPriorityNormal2);
+    thread4.set_priority(osPriorityNormal3);
+
+    printf("Open Serial!!\n\n\r");
+
+    while (true) {
+        
+        printf("Serial Test!!\n\n\r");
+        printf("Thread 1 Priority: %d\n", thread1.get_priority());
+        printf("Thread 2 Priority: %d\n", thread2.get_priority());
+        printf("Thread 3 Priority: %d\n", thread3.get_priority());
+        printf("Thread 4 Priority: %d\n", thread4.get_priority());
+
+        ThisThread::sleep_for(1000);
+    }
+}
+
+실습 3 
+
+#include "mbed.h"
+#include "rtos.h"
+
+BufferedSerial pc(USBTX, USBRX); // tx, rx
+
+FileHandle *mbed::mbed_override_console(int fd)
+{
+    return &pc;
+}
+
+DigitalOut Rled(PC_0);
+DigitalOut Bled(PC_1);
+DigitalOut Yled(PC_2);
+DigitalOut Gled(PC_3);
+
+Thread thread1;
+Thread thread2;
+Thread thread3;
+Thread thread4;
+// 각 우선순위들을 미리 정의 . osPriorityLow는 8 
+int priority1 = osPriorityLow;
+int priority2 = osPriorityLow1;
+int priority3 = osPriorityLow2;
+int priority4 = osPriorityLow3;
+
+void Rled_thread()
+{
+    while (true) {
+        if (thread1.get_priority() >= priority1) {
+            Rled = !Rled;
+            printf("thread1 ");
+        }
+        ThisThread::sleep_for(250);
+    }
+}
+
+void Bled_thread()
+{
+    while (true) {
+        if (thread2.get_priority() >= priority2) {
+            Bled = !Bled;
+             printf("thread2 ");
+        }
+        ThisThread::sleep_for(500);
+    }
+}
+
+void Yled_thread()
+{
+    while (true) {
+        if (thread3.get_priority() >= priority3) {
+            Yled = !Yled;
+             printf("thread3 ");
+        }
+        ThisThread::sleep_for(750);
+    }
+}
+
+void Gled_thread()
+{
+    while (true) {
+        if (thread4.get_priority() >= priority4) {
+            Gled = !Gled;
+             printf("thread4 ");
+        }
+        ThisThread::sleep_for(1000);
+    }
+}
+
+int main()
+{
+    // 스레드를 각 시작하기 위해 선언되는 start(callback(threadname))
+    thread1.start(callback(Rled_thread));
+    thread2.start(callback(Bled_thread));
+    thread3.start(callback(Yled_thread));
+    thread4.start(callback(Gled_thread));
+
+    printf("Open Serial!!\n\n\r");
+
+    while (true) {
+        printf("\n");
+        printf("Serial Test!!\n\n\r");
+
+        // 각 스레드의 순환 규칙을 다르게 적용
+        priority1 = (priority1 % 4) + 1;
+        priority2 = (priority2 % 4) + 1;
+        priority3 = (priority3 % 4) + 1;
+        priority4 = (priority4 % 4) + 1;
+        // 각 스레드의 우선순위를 정해주는 set_pirority 함수 사용 구문 
+        thread1.set_priority((osPriority_t)priority1);
+        thread2.set_priority((osPriority_t)priority2);
+        thread3.set_priority((osPriority_t)priority3);
+        thread4.set_priority((osPriority_t)priority4);
+        // 변화하는 우선순위가 출력되는 구문 
+        printf("Thread 1 Priority = %i\n\r", thread1.get_priority());
+        printf("Thread 2 Priority = %i\n\r", thread2.get_priority());
+        printf("Thread 3 Priority = %i\n\r", thread3.get_priority());
+        printf("Thread 4 Priority = %i\n\r", thread4.get_priority());
+
+        ThisThread::sleep_for(1000);
+    }
+}
