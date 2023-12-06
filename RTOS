@@ -1,0 +1,225 @@
+/* 실습1 2개의 외부 led를 이용하여 Thread를 이용한 on/off 실습 */
+#include "mbed.h"
+
+DigitalOut Rled(PC_0);
+DigitalOut Gled(PC_1);
+Thread thread;  
+
+void Gled_thread(){
+    while (true) {
+         Gled = !Gled; 
+         ThisThread::sleep_for(500); 
+    }
+}
+
+int main()
+{
+    thread.start(Gled_thread);
+
+    while (true) {
+        Rled = !Rled;
+        ThisThread::sleep_for(500); 
+    }
+}
+/* 실습2 2개의 외부 led를 이용하여 기존의 sequential 프로그램을 이용한 on/off 실습습 */ 
+#include "mbed.h"
+
+DigitalOut Rled(PC_0);
+DigitalOut Gled(PC_1);
+
+int main()
+{
+    /*스레드를 사용하지 않은 작동 */
+    while (true) {
+        Rled = !Rled;
+        wait_ms(250);
+        Gled = !Gled;
+        wait_ms(500); 
+    }
+}
+
+/* 실습3-1 4개의 외부 led를 이용하여 Thread를 이용한 on/off 실습  */ 
+#include "mbed.h"
+
+// 4개의 led와 Thread 및 동작구현 
+DigitalOut Rled1(PC_0);
+DigitalOut Gled(PC_1);
+DigitalOut Yled(PC_2);
+DigitalOut Rled2(PC_3);
+Thread Rled1Thread;  
+Thread GledThread;  
+Thread YledThread;  
+Thread Rled2Thread;
+
+void Rled1_thread(){
+    while (true) {
+        Rled1 = !Rled1;
+        ThisThread::sleep_for(1000); 
+    }
+}
+void Gled_thread(){
+    while (true) {
+         Gled = !Gled; 
+         ThisThread::sleep_for(500); 
+    }
+}
+void Yled_thread(){
+    while (true) {
+        Yled = !Yled;
+        ThisThread::sleep_for(100);
+    }
+}
+void Rled2_thread(){
+    while (true) {
+        Rled2 = !Rled2;
+        ThisThread::sleep_for(500);  
+    }
+}
+
+int main()
+{
+    GledThread.start(Gled_thread);
+    YledThread.start(Yled_thread);
+    Rled2Thread.start(Rled2_thread);
+
+    while (true) {
+	  Rled1 = !Rled1;
+        ThisThread::sleep_for(1000);  
+    }
+}
+
+/* 실습3-2  4개의 외부 led를 이용하여 기존의 sequential 프로그램을 이용한 on/off 실습 */
+#include "mbed.h"
+
+DigitalOut Rled1(PC_0);
+DigitalOut Gled(PC_1);
+DigitalOut Yled(PC_2);
+DigitalOut Rled2(PC_3);
+
+int main()
+{
+    
+    while (true) {
+	    Rled1 = !Rled1;
+        wait_ms(250);
+        Gled = !Gled;
+        wait_ms(250);
+        Yled = !Yled;
+        wait_ms(250);
+        Rled2 = !Rled2;
+        wait_ms(250);
+    }
+}
+/*과제 1  하나의 프로그램에서 실습 1과 2를 동시에 구현하기 */ 
+#include "mbed.h"
+ 
+DigitalOut Rled1(PC_0);
+DigitalOut Gled(PC_1);
+DigitalOut Yled(PC_2);
+DigitalOut Rled2(PC_3);
+Thread Rled1Thread;  
+Thread GledThread;  
+
+void Rled1_thread(){
+    while (true) {
+        Rled1 = !Rled1;
+        ThisThread::sleep_for(1000); 
+    }
+}
+void Gled_thread(){
+    while (true) {
+         Gled = !Gled; 
+         ThisThread::sleep_for(500); 
+    }
+}
+
+
+int main()
+{
+    //4개의 Thread 작동 
+    Rled1Thread.start(Rled1_thread);
+    GledThread.start(Gled_thread);
+
+    while (true) {
+	    Yled = !Yled;
+        wait_ms(250);
+        Rled2 = !Rled2; 
+        wait_ms(500);
+    }
+}
+
+/* 과제 2  하나의 프로그램에서 oled에 텍스트와 도형을 전시하면서
+           4개의 외부 led를 on/off를 포함하여 총 5개의 Thread를 동시에 구현하기기*/ 
+#include "mbed.h"
+
+// oled를 이용하기 위한 선언들 
+#include "Adafruit_SSD1306.h"
+I2C i2c_bled(PB_9, PB_8); // SDA, SCL
+Adafruit_SSD1306_I2c bled(i2c_bled, PC_1, 120, 64, 128);
+
+// 4개의 led와 Thread 및 동작구현 
+DigitalOut Rled1(PC_0);
+DigitalOut Gled(PC_1);
+DigitalOut Yled(PC_2);
+DigitalOut Rled2(PC_3);
+Thread Rled1Thread;  
+Thread GledThread;  
+Thread YledThread;  
+Thread Rled2Thread;
+
+void Rled1_thread(){
+    while (true) {
+        Rled1 = !Rled1;
+        ThisThread::sleep_for(1000); 
+    }
+}
+void Gled_thread(){
+    while (true) {
+         Gled = !Gled; 
+         ThisThread::sleep_for(500); 
+    }
+}
+void Yled_thread(){
+    while (true) {
+        Yled = !Yled;
+        ThisThread::sleep_for(100);
+    }
+}
+void Rled2_thread(){
+    while (true) {
+        Rled2 = !Rled2;
+        ThisThread::sleep_for(500);  
+    }
+}
+
+int main()
+{
+    //4개의 Thread 작동 
+    Rled1Thread.start(Rled1_thread);
+    GledThread.start(Gled_thread);
+    YledThread.start(Yled_thread);
+    Rled2Thread.start(Rled2_thread);
+
+    while (true) {
+	//main의 Thread 작동 ( oled에 text와 도형 구현 )
+        bled.clearDisplay(); 
+	// oled에 text 띄우는 함수들 
+        bled.setTextSize(2); 
+        bled.setTextCursor(0, 0); 
+        bled.printf("Welcome! ! \n"); 
+        bled.printf("Blue LED! ! "); 
+        bled.printf("Hello! ! "); 
+        bled.display(); 
+	// Thread이기 때문에 wait이 아닌 ThisThread::sleep_for 사용 
+        ThisThread::sleep_for(500);
+	// oled에 도형 띄우는 함수들 
+        bled.clearDisplay(); 
+        bled.drawRect(0, 0, 25, 25, 1);
+        bled.fillRect(30, 0, 0, 0, 1) ;
+        bled.drawTriangle(73, 30, 60, 55, 85, 55, 1);
+        bled.fillTriangle(73, 0, 60, 25, 85, 0, 1); 
+        bled.display(); 
+	// Thread이기 때문에 wait이 아닌 ThisThread::sleep_for 사용 
+        ThisThread::sleep_for(500); 
+    }
+}
