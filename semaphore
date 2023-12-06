@@ -1,0 +1,132 @@
+//14주차 semaphore code 모음  
+
+/* 실습 1 non semaphore */
+#include "mbed.h"
+
+Thread t1;
+Thread t2;
+
+
+void thread_test(void const *name)
+{
+    while(1)
+	{
+        printf("%s Running ! \n\n\r", (const char*) name);
+		ThisThread::sleep_for(1000);
+    }
+		
+}
+
+int main() 
+{
+    t1.start(callback(thread_test, (void *)"Thread 1"));
+	t2.start(callback(thread_test, (void *)"Thread 2"));
+
+    thread_test((void *)"Main Thread");
+}
+
+
+/*  실습 2 use Semaphore */
+
+
+#include "mbed.h"
+
+Semaphore one_slot(1);
+
+Thread t1;
+Thread t2;
+
+void thread_test(void const *name)
+{
+    while(1)
+	{
+        one_slot.acquire();
+        printf("%s Running ! \n\n\r", (const char*) name);
+		ThisThread::sleep_for(1000);
+        one_slot.release();
+    }
+		
+}
+
+int main() 
+{
+    t1.start(callback(thread_test, (void *)"Thread 1"));
+t2.start(callback(thread_test, (void *)"Thread 2"));
+
+    thread_test((void *)"Main Thread");
+}
+
+
+/* 실습 3  세마포어를 사용하고 않하고의 차이를 led에 띄우고 pc termial에 출력 */ 
+
+#include "mbed.h"
+// led 선언과 세마포어, 스레드 선언 
+DigitalOut Rled(PC_0);
+Semaphore one_slot(1);
+Thread t1;
+Thread t2;
+Thread t3;
+void thread_test(void const *name)
+{
+    while (1)
+    {
+        // 세마포어를 사용하지 않는 경우, one_slot.acquire(), 와 one_slot.release()를 주석처리 또는 삭제 
+        one_slot.acquire();
+        Rled = !Rled;
+        ThisThread::sleep_for(1000);
+        printf("%s Running !\n", (const char *)name);
+        printf("Rled status= %d", Rled.read());
+        one_slot.release();
+    }
+}
+
+int main()
+{
+    //총 thread 4개 사용 
+    t1.start(callback(thread_test, (void *)"Thread 1"));
+    t2.start(callback(thread_test, (void *)"Thread 2"));
+    t3.start(callback(thread_test, (void *)"Thread 3"));
+    thread_test((void *)"Main Thread");
+}
+
+
+/* 실습 4 .  실습 1, 2, 3의 내용들을 섞은 내용을 pc terminal이 아닌 oled에 출력  */
+ 
+#include "mbed.h"
+// oled를 사용하기 위한 호출들 
+#include "Adafruit_SSD1306.h"
+I2C i2c_bled(PB_9, PB_8); // SDA, SCL
+Adafruit_SSD1306_I2c bled(i2c_bled, PC_1, 120, 64, 128);
+// led 선언과 세마포어, 스레드 선언 
+DigitalOut Rled(PC_0);
+Semaphore one_slot(1);
+Thread t1;
+Thread t2;
+Thread t3;
+void thread_test(void const *name)
+{
+    while (1)
+    {
+        // 세마포어를 사용하지 않는 경우, one_slot.acquire(), 와 one_slot.release()를 주석처리 또는 삭제 
+        //one_slot.acquire();
+        Rled = !Rled;
+        bled.clearDisplay();
+        bled.setTextSize(1);
+        bled.setTextCursor(0, 0);
+        bled.printf("%s Running !\n", (const char *)name);
+        bled.printf("Rled status= %d", Rled.read());
+        bled.display();
+       ThisThread::sleep_for(1000);
+        //one_slot.release();
+    }
+}
+
+int main()
+{
+    t1.start(callback(thread_test, (void *)"Thread 1"));
+    t2.start(callback(thread_test, (void *)"Thread 2"));
+    t3.start(callback(thread_test, (void *)"Thread 3"));
+    thread_test((void *)"Main Thread");
+}
+
+
