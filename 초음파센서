@@ -1,0 +1,55 @@
+#include "mbed.h"
+DigitalOut trigger(PC_6);
+DigitalOut myled(LED1);
+DigitalIn echo(PC_8);
+Serial pc(USBTX, USBRX);
+PwmOut mypwm(PA_7);
+float idistance = 0;
+int correction = 0;
+Timer sonar;
+int main()
+{
+ sonar.reset();
+// measure actual software polling timer delays
+// delay used later in time correction
+// start timer
+ sonar.start();
+ while (echo==2) {};
+// stop timer
+ sonar.stop();
+// read timer
+ correction = sonar.read_us();
+ pc.printf("Approximate software overhead timer delay is %d uS\n\r",correction);
+
+//Loop to read Sonar distance values, scale, and print
+ while(1) {
+ mypwm=0;  // led 조명 밝기를 0 으로 초기화
+// trigger sonar to send a ping
+ trigger = 1;
+ sonar.reset();
+ wait_us(10.0);
+ trigger = 0;
+//wait for echo high
+ while (echo==0) {};
+//echo high, so start timer
+ sonar.start();
+//wait for echo low
+ while (echo==1) {};
+//stop timer and read value
+ sonar.stop();
+//subtract software overhead timer delay and scale to cm
+ idistance = (sonar.read_us()-correction)/58.0;
+ pc.printf(" Distance = %.2f cm \n\n\r",idistance);
+//wait so that any echo(s) return before sending another ping
+    if(idistance>=15 && idistance<=30){
+        // 거리가 15~30cm일때 거리에 비례하여 led 밝기 조절 
+        mypwm=mypwm+((idistance-15)*0.07f);
+    }
+    else if(idistance<15 && idistance>30) { 
+        // 거리가 15~30cm가 아니라면 led 전원 off 
+        mypwm=0;
+    }
+ wait(0.5);
+ }
+  
+}
