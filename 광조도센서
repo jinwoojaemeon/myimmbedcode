@@ -1,0 +1,21 @@
+#include "mbed.h"
+PwmOut cdspwm(PB_6);  //  광조도 센서에 반응하는 led 설정 
+AnalogIn cds_sensor(A0);  // 광조도 센서 A0 포트연결 
+
+int convertFloatToInt(float f) { return (int)(f * 100); } // 광조도 센서로 읽은 값을 정수값으로 변환시키는 함수 
+
+int main()
+{
+    while (true) {
+        float a = cds_sensor.read();  // 광조도 센서에서 아날로그값을 받는 실수 a 
+        int conA = convertFloatToInt(a); // 실수  a를 정수로 반환
+         if(conA < 10){  // 아무것도 대지 않은 conA 의 값이 최소 8~10을 돌기 때문에 10 미만일 때 
+            cdspwm = 0;     // led off
+         }
+        else {
+            cdspwm = conA*0.01;  // conA 값에 비례해서 led on
+         }
+            wait(0.1);
+    }
+}
+
