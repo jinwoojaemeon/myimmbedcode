@@ -1,0 +1,24 @@
+#include "mbed.h"
+Serial pc(USBTX, USBRX); // tx, rx
+PwmOut mypwm(PA_7);
+int main() {
+ 
+ pc.printf("Control of LED dimmer by host PC terminal\n\n\r");
+ pc.printf("Press 'u' = brightness up, 'd' = brightness down\n\n\r");
+ 
+ while(1) {
+ char c = pc.getc(); // 키보드로부터 문자 입력
+ 
+ wait(0.001);
+ 
+ if((c == 'u') && (mypwm < 1.0f)) { // LED 밝기가 최대가 될때까지 'u' 입력
+ mypwm = mypwm + 0.05f; // LED 밝게
+ }
+ 
+ if((c == 'd') && (mypwm > 0.0f)) {// LED 밝기가 최저가 될때까지 'd' 입력
+ mypwm = mypwm - 0.05f;// LED 어둡게
+ }
+ 
+ pc.printf("%c : %1.3f\n\r",c,mypwm.read()); // 입력 문자와 [0.0 - 1.0] 범위의 현재 밝기 출력
+ }
+}
