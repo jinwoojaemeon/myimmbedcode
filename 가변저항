@@ -1,0 +1,31 @@
+#include "mbed.h"
+Serial pc(USBTX, USBRX);
+//가변저항기 
+AnalogIn Ain(PB_0);
+DigitalOut myled(LED1);
+float ADCdata1, ADCdata2, ADCdata3;
+// main() runs in its own thread in the OS
+int main()
+{
+    pc.baud(115200);
+    pc.printf("ADC Data Values... \n\r");
+    while (true) {
+        ADCdata1=Ain;
+        ADCdata2=Ain.read();
+        // 가변저항의 회전값
+        float angle;
+        angle = ADCdata2 * 250;
+        float ADCdata;
+        ADCdata = Ain.read();
+        // ADCdata, 가변저항긱 0.5정도의 값을 가질 때 LED를 켜는 방법 
+        if ( (ADCdata > 0.45) && (ADCdata <= 0.55) ){
+        myled = 1; // LED ON
+        }
+        else myled = 0; // LED OFF
+        pc.printf("ADCdata = %0.2f \n\r",ADCdata);
+        pc.printf("Angle = %0.3f \n\r",angle);
+        pc.printf("ADCdata1 = %0.2f \n\r",ADCdata1);
+        pc.printf("ADCdata2 = %0.2f \n\r",ADCdata2);
+        wait(0.5);
+    }
+}
